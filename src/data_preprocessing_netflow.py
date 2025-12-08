@@ -12,12 +12,17 @@ except Exception as e:
     raise
 print(f"Training rows loaded: {len(df_train_full)}")
 
-df_train = df_train_full.sample(frac=0.1, random_state=42)
+df_train = df_train_full.sample(frac=0.8, random_state=42)
 print(f"Training rows sampled: {len(df_train)}")
+
+# Deletin rows with anomaly = 1
+
+df_train = df_train[df_train['ANOMALY'] == 0]
+print(f"Training rows after keeping only ANOMALY=0 : {len(df_train)}")
 
 # Deleting unnecessary columns for training data
 cols_to_drop_train = ['FLOW_ID', 'ID', 'ALERT', 'ANOMALY', "ANALYSIS_TIMESTAMP", "MIN_IP_PKT_LEN", "MAX_IP_PKT_LEN", "TOTAL_PKTS_EXP", "TOTAL_BYTES_EXP", "TOTAL_FLOWS_EXP", 
-                      "IPV4_SRC_ADDR" , "IPV4_DST_ADDR"]  
+                      "IPV4_SRC_ADDR" , "IPV4_DST_ADDR", "L4_SRC_PORT", "L4_DST_PORT"]  
 
 colums_to_drop_train = []
 
@@ -62,7 +67,7 @@ except Exception as e:
     raise
 print(f"Test rows loaded: {len(df_test_full)}")
 
-df_test = df_test_full.sample(frac=0.1, random_state=42)
+df_test = df_test_full.sample(frac=0.8, random_state=42)
 print(f"Test rows sampled: {len(df_test)}")
 
 # Deleting rows with missing values and storing the ANOMALY column
@@ -71,7 +76,7 @@ print(f"Test rows after dropping missing ANOMALY: {len(df_test)}")
 anomaly = df_test['ANOMALY'].copy()
 
 cols_to_drop_test = ['FLOW_ID', 'ID', "ANALYSIS_TIMESTAMP", "ANOMALY", "MIN_IP_PKT_LEN", "MAX_IP_PKT_LEN", "TOTAL_PKTS_EXP", "TOTAL_BYTES_EXP", "TOTAL_FLOWS_EXP"
-                      , "IPV4_SRC_ADDR" , "IPV4_DST_ADDR"]
+                      , "IPV4_SRC_ADDR" , "IPV4_DST_ADDR", "L4_SRC_PORT", "L4_DST_PORT"]
 
 colums_to_drop_test = []
 

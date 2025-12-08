@@ -1,0 +1,28 @@
+Isolation Forest Evaluation
+Contamination: 0.02
+Elapsed time (s): 11.44
+
+Model Parameters:
+bootstrap: False
+contamination: 0.02
+max_features: 1.0
+max_samples: auto
+n_estimators: 100
+n_jobs: None
+random_state: 42
+verbose: 0
+warm_start: False
+
+Confusion Matrix:
+[[731999  15001]
+ [164680    234]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0     0.8163    0.9799    0.8907    747000
+           1     0.0154    0.0014    0.0026    164914
+
+    accuracy                         0.8030    911914
+   macro avg     0.4159    0.4907    0.4466    911914
+weighted avg     0.6715    0.8030    0.7301    911914
