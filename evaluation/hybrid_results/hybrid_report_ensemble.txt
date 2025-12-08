@@ -1,0 +1,17 @@
+Hybrid 2-Stage Detection System Results (ENSEMBLE)
+=======================================
+Stage 1 Model: IsolationForest(contamination=0.45, random_state=42)
+Stage 2 Model Type: ENSEMBLE
+Traffic Processed: 911914
+Stage 2 Triggered: 499374 (54.76%)
+Total Time: 38.58s
+Balanced Accuracy: 0.9594
+
+              precision    recall  f1-score   support
+
+         0.0     0.9943    0.9431    0.9681    747000
+         1.0     0.7911    0.9757    0.8738    164914
+
+    accuracy                         0.9490    911914
+   macro avg     0.8927    0.9594    0.9209    911914
+weighted avg     0.9576    0.9490    0.9510    911914

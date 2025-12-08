@@ -1,0 +1,16 @@
+Hybrid 2-Stage Detection System Results
+=======================================
+Stage 1 Model: IsolationForest(contamination=0.5, random_state=42)
+Stage 2 Model: SGDClassifier(loss='log_loss', random_state=42, warm_start=True)
+Traffic Processed: 911914
+Stage 2 Triggered: 537396 (58.93%)
+Total Time: 4.54s
+
+              precision    recall  f1-score   support
+
+         0.0     0.9329    0.9334    0.9331    747000
+         1.0     0.6974    0.6957    0.6965    164914
+
+    accuracy                         0.8904    911914
+   macro avg     0.8151    0.8145    0.8148    911914
+weighted avg     0.8903    0.8904    0.8903    911914

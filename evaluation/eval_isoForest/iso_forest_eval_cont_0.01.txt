@@ -1,6 +1,6 @@
 Isolation Forest Evaluation
 Contamination: 0.01
-Elapsed time (s): 10.71
+Elapsed time (s): 10.86
 
 Model Parameters:
 bootstrap: False

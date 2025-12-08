@@ -1,6 +1,7 @@
 import time
 from pathlib import Path
 import pandas as pd
+import joblib
 from sklearn.ensemble import IsolationForest
 from sklearn.metrics import confusion_matrix, classification_report
 
@@ -20,7 +21,7 @@ eval_dir = Path("evaluation") / "eval_isoForest"
 eval_dir.mkdir(parents=True, exist_ok=True)
 
 results = []
-contamination = [0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]
+contamination = [0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.45, 0.5]
 
 for c in contamination:
     print(f"---------Training Isolation Forest with contamination = {c}---------")
@@ -42,6 +43,17 @@ for c in contamination:
     print("Model trained.")
 
     print("Making predictions on test...")
+
+    # Save the model if contamination is 0.5 or 0.45 (potential best performing)
+    if c in [0.45, 0.5]:
+        models_dir = Path("models")
+        models_dir.mkdir(parents=True, exist_ok=True)
+        model_path = models_dir / f"iso_forest_{c}.pkl"
+        try:
+            joblib.dump(iso, model_path)
+            print(f"Saved model to {model_path}")
+        except Exception as e:
+            print(f"Error saving model: {e}")
 
     try:
         y_pred_if = iso.predict(X_test)

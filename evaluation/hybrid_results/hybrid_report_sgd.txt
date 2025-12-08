@@ -1,0 +1,17 @@
+Hybrid 2-Stage Detection System Results (SGD)
+=======================================
+Stage 1 Model: IsolationForest(contamination=0.45, random_state=42)
+Stage 2 Model Type: SGD
+Traffic Processed: 911914
+Stage 2 Triggered: 499374 (54.76%)
+Total Time: 3.66s
+Balanced Accuracy: 0.8571
+
+              precision    recall  f1-score   support
+
+         0.0     0.9487    0.9458    0.9472    747000
+         1.0     0.7578    0.7684    0.7631    164914
+
+    accuracy                         0.9137    911914
+   macro avg     0.8532    0.8571    0.8552    911914
+weighted avg     0.9142    0.9137    0.9139    911914

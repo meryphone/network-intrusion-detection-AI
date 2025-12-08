@@ -1,0 +1,17 @@
+Hybrid 2-Stage Detection System Results (MLP)
+=======================================
+Stage 1 Model: IsolationForest(contamination=0.45, random_state=42)
+Stage 2 Model Type: MLP
+Traffic Processed: 911914
+Stage 2 Triggered: 499374 (54.76%)
+Total Time: 6.29s
+Balanced Accuracy: 0.9004
+
+              precision    recall  f1-score   support
+
+         0.0     0.9671    0.9466    0.9567    747000
+         1.0     0.7793    0.8541    0.8150    164914
+
+    accuracy                         0.9299    911914
+   macro avg     0.8732    0.9004    0.8859    911914
+weighted avg     0.9331    0.9299    0.9311    911914
