@@ -21,13 +21,13 @@ COLS_TO_DROP = [
 ]
 
 # Paths
-RAW_TRAIN_PATH = Path('datasets/raw/train_net.csv')
-RAW_TEST_PATH = Path('datasets/raw/test_net.csv')
-PROCESSED_DIR = Path('datasets/processed')
+RAW_TRAIN_PATH = Path('../datasets/raw/netflow/train_net.csv')
+RAW_TEST_PATH = Path('../datasets/raw/netflow/test_net.csv')
+PROCESSED_DIR = Path('../datasets/processed/netflow/')
 
-OUTPUT_TRAIN_STAGE1 = PROCESSED_DIR / 'X_train_processed.csv'
-OUTPUT_TRAIN_STAGE2 = PROCESSED_DIR / 'X_train_full_processed.csv'
-OUTPUT_TEST = PROCESSED_DIR / 'Y_test_processed.csv'
+OUTPUT_TRAIN_BENIGN = PROCESSED_DIR / 'train_processed_benign.csv'  # Stage 1 (benign only)
+OUTPUT_TRAIN = PROCESSED_DIR / 'train_processed.csv'                # Stage 2 (full)
+OUTPUT_TEST = PROCESSED_DIR / 'test_processed.csv'
 
 
 def filter_columns(df: pd.DataFrame, cols_to_drop: list) -> pd.DataFrame:
@@ -91,8 +91,8 @@ def main():
         columns=X_train.columns
     )
     
-    X_train_scaled.to_csv(OUTPUT_TRAIN_STAGE1, index=False)
-    print(f"Saved: {OUTPUT_TRAIN_STAGE1}")
+    X_train_scaled.to_csv(OUTPUT_TRAIN_BENIGN, index=False)
+    print(f"Saved: {OUTPUT_TRAIN_BENIGN}")
     
     # =========================================================================
     # STAGE 2: FULL TRAINING DATA (WITH ATTACKS)
@@ -113,8 +113,8 @@ def main():
     )
     X_s2_scaled['ANOMALY'] = anomaly_labels.values
     
-    X_s2_scaled.to_csv(OUTPUT_TRAIN_STAGE2, index=False)
-    print(f"Saved: {OUTPUT_TRAIN_STAGE2}")
+    X_s2_scaled.to_csv(OUTPUT_TRAIN, index=False)
+    print(f"Saved: {OUTPUT_TRAIN}")
     
     # =========================================================================
     # TEST DATA
