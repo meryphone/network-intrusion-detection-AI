@@ -116,8 +116,8 @@ def main():
         "--model",
         type=str,
         required=True,
-        choices=["sgd", "mlp", "ensemble"],
-        help="Stage 2 model to combine with Isolation Forest"
+        choices=["sgd", "mlp", "ensemble", "all"],
+        help="Stage 2 model to combine with Isolation Forest (use 'all' to train all models)"
     )
     parser.add_argument(
         "--skip-stage1",
@@ -178,8 +178,13 @@ def main():
             sys.exit(1)
     
     # Stage 2
-    train_stage2(args.model, args.train, args.test, stage1_model, dataset_type)
-    
+    if args.model == "all":
+        # Train all Stage 2 models
+        for model_name in ["sgd", "mlp", "ensemble"]:
+            train_stage2(model_name, args.train, args.test, stage1_model, dataset_type)
+    else:
+        train_stage2(args.model, args.train, args.test, stage1_model, dataset_type)
+
     print("\n" + "=" * 70)
     print("TRAINING COMPLETE")
     print("=" * 70)

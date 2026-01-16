@@ -10,6 +10,7 @@ Usage:
 
 import time
 import argparse
+import warnings
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -21,6 +22,9 @@ from sklearn.metrics import (
     accuracy_score,
     confusion_matrix
 )
+
+# Ignore warnings to keep output clean
+warnings.filterwarnings('ignore')
 
 # =============================================================================
 # HYPERPARAMETERS
@@ -35,7 +39,7 @@ BASE_RANDOM_STATE = 42
 BASE_MAX_ITER = 50
 
 # Pipeline config
-BATCH_SIZE = 10000
+BATCH_SIZE_OPTIONS = [25000] # After experiments we leave the best option from this batch sizes [10000, 15000, 20000, 25000, 30000]
 CLASSES = np.array([0, 1])
 
 # =============================================================================
@@ -149,8 +153,60 @@ def load_stage1_model(model_path):
     return joblib.load(path)
 
 
-def main(train_path, test_path, stage1_model_path, output_dir=None, models_dir=None):
+def main(train_path, test_path, stage1_model_path, batch_size=None, output_dir=None, models_dir=None):
     """Main training function."""
+    
+    if batch_size is None:
+        # Test all batch sizes
+        eval_dir = Path(output_dir) if output_dir else EVAL_DIR
+        eval_dir.mkdir(parents=True, exist_ok=True)
+        
+        all_results = []
+        total_training_time = 0.0
+
+        for bs in BATCH_SIZE_OPTIONS:
+            print(f"\nTesting with batch_size: {bs}")
+            try:
+                result = _train_single(
+                    train_path=train_path,
+                    test_path=test_path,
+                    stage1_model_path=stage1_model_path,
+                    batch_size=bs,
+                    output_dir=output_dir,
+                    models_dir=models_dir
+                )
+                total_training_time += result["total_time_sec"]
+                all_results.append(result)
+            except Exception as e:
+                print(f"Error with batch_size {bs}: {e}")
+                continue
+
+        # Save all results to DataFrame
+        if all_results:
+            # Add cumulative training time to all rows
+            for result in all_results:
+                result["total_training_time_sec"] = round(total_training_time, 2)
+
+            results_df = pd.DataFrame(all_results)
+            output_file = eval_dir / "ensemble_evaluation.csv"
+            results_df.to_csv(output_file, index=False)
+            print(f"\nSaved all evaluation results to {output_file}")
+            print(f"Total training time (all batch sizes): {total_training_time:.2f}s")
+        
+        return all_results
+    else:
+        # Single batch size
+        return _train_single(
+            train_path=train_path,
+            test_path=test_path,
+            stage1_model_path=stage1_model_path,
+            batch_size=batch_size,
+            output_dir=output_dir,
+            models_dir=models_dir
+        )
+
+
+def _train_single(train_path, test_path, stage1_model_path, batch_size, output_dir=None, models_dir=None):
     
     train_data_path = Path(train_path)
     test_data_path = Path(test_path)
@@ -236,7 +292,7 @@ def main(train_path, test_path, stage1_model_path, output_dir=None, models_dir=N
     print("PHASE 2: ONLINE TESTING (DYNAMIC UPDATES)")
     print("=" * 60)
     
-    n_batches = int(np.ceil(len(X_test) / BATCH_SIZE))
+    n_batches = int(np.ceil(len(X_test) / batch_size))
     
     y_true_all = []
     y_pred_all = []
@@ -246,8 +302,8 @@ def main(train_path, test_path, stage1_model_path, output_dir=None, models_dir=N
     start_test = time.time()
     
     for i in range(n_batches):
-        start_idx = i * BATCH_SIZE
-        end_idx = min((i + 1) * BATCH_SIZE, len(X_test))
+        start_idx = i * batch_size
+        end_idx = min((i + 1) * batch_size, len(X_test))
         
         X_batch = X_test.iloc[start_idx:end_idx]
         y_batch = y_test.iloc[start_idx:end_idx]
@@ -317,7 +373,7 @@ def main(train_path, test_path, stage1_model_path, output_dir=None, models_dir=N
         "base_activation": BASE_ACTIVATION,
         "base_solver": BASE_SOLVER,
         "base_max_iter": BASE_MAX_ITER,
-        "batch_size": BATCH_SIZE,
+        "batch_size": batch_size,
         "warmup_time_sec": round(warmup_time, 2),
         "test_time_sec": round(test_time, 2),
         "total_time_sec": round(warmup_time + test_time, 2),
@@ -356,6 +412,8 @@ def main(train_path, test_path, stage1_model_path, output_dir=None, models_dir=N
     print("\n" + "=" * 60)
     print("TRAINING COMPLETE")
     print("=" * 60)
+    
+    return results
 
 
 if __name__ == "__main__":
@@ -364,6 +422,7 @@ if __name__ == "__main__":
         train_path=args.train,
         test_path=args.test,
         stage1_model_path=args.stage1_model,
+        batch_size=None,  # Test all batch sizes
         output_dir=args.output_dir,
         models_dir=args.models_dir
     )
