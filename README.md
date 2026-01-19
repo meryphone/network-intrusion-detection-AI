@@ -391,6 +391,14 @@ Results from training the hybrid IDS across all three datasets:
 | MLP | 90.92% | **92.72%** | 88.65% |
 | SGD | 89.53% | 87.81% | 86.41% |
 
+### Stage 2 Model Comparison (Balanced Accuracy)
+
+| Model | CORES-IoT | KDD | NetFlow |
+|-------|-----------|-----|---------|
+| **Ensemble** | **95.32%** | **96.11%** | **95.98%** |
+| MLP | 90.98% | 95.52% | 90.23% |
+| SGD | 89.51% | 90.85% | 87.38% |
+
 ### Key Insights
 
 1. **Ensemble consistently performs best** across datasets, achieving 95%+ accuracy on all three
