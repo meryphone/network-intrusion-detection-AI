@@ -56,16 +56,55 @@ def parse_args():
         default=None,
         help="Directory to save models"
     )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default=None,
+        help="Dataset name (used for output directory routing)"
+    )
+    parser.add_argument(
+        "--contamination",
+        type=float,
+        default=None,
+        help="Single contamination value to train (default: test all CONTAMINATION_VALUES)"
+    )
     return parser.parse_args()
 
 
-def main(train_path, test_path, output_dir=None, models_dir=None):
-    """Main training function."""
+def main(train_path, test_path, output_dir=None, models_dir=None, contamination=None, dataset=None):
+    """Main training function.
+    
+    Args:
+        train_path: Path to benign-only training CSV
+        test_path: Path to test CSV with ANOMALY column
+        output_dir: Directory for evaluation results
+        models_dir: Directory to save models
+        contamination: Single contamination value, or None for all CONTAMINATION_VALUES
+        dataset: Dataset name for output routing
+    """
     
     train_data_path = Path(train_path)
     test_data_path = Path(test_path)
-    eval_dir = Path(output_dir) if output_dir else EVAL_DIR
-    model_dir = Path(models_dir) if models_dir else MODELS_DIR
+    
+    # Build eval_dir with optional dataset subdirectory
+    if output_dir:
+        eval_dir = Path(output_dir)
+    elif dataset:
+        eval_dir = EVAL_DIR / dataset
+    else:
+        eval_dir = EVAL_DIR
+    
+    # Build model_dir with optional dataset subdirectory  
+    if models_dir:
+        model_dir = Path(models_dir)
+    elif dataset:
+        model_dir = MODELS_DIR / dataset
+    else:
+        model_dir = MODELS_DIR
+    
+    # Determine which contamination values to test
+    contamination_values = [contamination] if contamination else CONTAMINATION_VALUES
+    save_contamination = [contamination] if contamination else SAVE_MODEL_CONTAMINATION
     
     print("=" * 60)
     print("ISOLATION FOREST TRAINING")
@@ -93,7 +132,7 @@ def main(train_path, test_path, output_dir=None, models_dir=None):
     
     results = []
     
-    for c in CONTAMINATION_VALUES:
+    for c in contamination_values:
         print(f"\n{'='*60}")
         print(f"Training Isolation Forest with contamination = {c}")
         print('='*60)
@@ -117,7 +156,7 @@ def main(train_path, test_path, output_dir=None, models_dir=None):
         print("Model trained.")
         
         # Save model if in save list
-        if c in SAVE_MODEL_CONTAMINATION:
+        if c in save_contamination:
             model_file = model_dir / f"iso_forest_{c}.pkl"
             try:
                 joblib.dump(iso, model_file)
@@ -200,5 +239,7 @@ if __name__ == "__main__":
         train_path=args.train,
         test_path=args.test,
         output_dir=args.output_dir,
-        models_dir=args.models_dir
+        models_dir=args.models_dir,
+        contamination=args.contamination,
+        dataset=args.dataset
     )

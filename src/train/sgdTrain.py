@@ -74,6 +74,18 @@ def parse_args():
         default=None,
         help="Directory to save models"
     )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default=None,
+        help="Dataset name (used for output directory routing)"
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=None,
+        help="Single batch size to test (default: test all BATCH_SIZE_OPTIONS)"
+    )
     return parser.parse_args()
 
 

@@ -1,17 +1,76 @@
-# Entrenar IsolationForest + SGD
-python src/train_all.py --train datasets/processed/train.csv --test datasets/processed/test.csv --model sgd
+# =============================================================================
+# MULTI-DATASET TRAINING PIPELINE
+# =============================================================================
 
-# Entrenar IsolationForest + MLP
-python src/train_all.py --train datasets/processed/train.csv --test datasets/processed/test.csv --model mlp
+# Run full pipeline for all datasets (preprocess + train + compare)
+python src/run_all_experiments.py
 
-# Entrenar IsolationForest + Ensemble
-python src/train_all.py --train datasets/processed/train.csv --test datasets/processed/test.csv --model ensemble
+# Run full pipeline for a single dataset
+python src/run_all_experiments.py --dataset netflow
+python src/run_all_experiments.py --dataset kdd
+python src/run_all_experiments.py --dataset cores_iot
 
-# Saltarse stage 1
-python src/train_all.py --train data/train.csv --test data/test.csv --model mlp --skip-stage1
+# Only preprocess all datasets
+python src/run_all_experiments.py --preprocess-only
 
-# Entrenar Stage 1 + todos los modelos de Stage 2
-python src/train_all.py --train data/train.csv --test data/test.csv --model all
+# Only train (skip preprocessing)
+python src/run_all_experiments.py --train-only
 
-# Entrenar solo Stage 2 (todos los modelos) con modelo Stage 1 existente
-python src/train_all.py --train data/train.csv --test data/test.csv --model all --skip-stage1
+# Only compare existing results
+python src/run_all_experiments.py --compare-only
+
+# Skip comparison at the end
+python src/run_all_experiments.py --no-compare
+
+# =============================================================================
+# SINGLE DATASET TRAINING (using --dataset flag)
+# =============================================================================
+
+# Train IsolationForest + SGD for NetFlow
+python src/train_all.py --dataset netflow --model sgd
+
+# Train IsolationForest + MLP for KDD
+python src/train_all.py --dataset kdd --model mlp
+
+# Train IsolationForest + Ensemble for CORES-IoT
+python src/train_all.py --dataset cores_iot --model ensemble
+
+# Train Stage 1 + all Stage 2 models for a dataset
+python src/train_all.py --dataset netflow --model all
+
+# Skip Stage 1 (use existing Isolation Forest)
+python src/train_all.py --dataset netflow --model mlp --skip-stage1
+
+# Use specific contamination value
+python src/train_all.py --dataset netflow --model all --contamination 0.3
+
+# =============================================================================
+# LEGACY: EXPLICIT PATH TRAINING
+# =============================================================================
+
+# Train with explicit paths (legacy mode)
+python src/train_all.py --train datasets/processed/netflow/train_processed.csv --test datasets/processed/netflow/test_processed.csv --model sgd
+
+# Skip Stage 1 with explicit Stage 1 model path
+python src/train_all.py --train datasets/processed/netflow/train_processed.csv --test datasets/processed/netflow/test_processed.csv --model mlp --stage1-model models/netflow/iso_forest_0.45.pkl
+
+# =============================================================================
+# COMPARISON & ANALYSIS
+# =============================================================================
+
+# Compare results across all datasets
+python src/evaluation/compare_results.py
+
+# Output markdown summary
+python src/evaluation/compare_results.py --format markdown
+
+# Quiet mode (just save files)
+python src/evaluation/compare_results.py --quiet
+
+# =============================================================================
+# OUTPUT LOCATIONS
+# =============================================================================
+# Processed data: datasets/processed/<dataset>/
+# Models: models/<dataset>/
+# Evaluation: evaluation/<model>/<dataset>/
+# Summary: evaluation/summary.csv, evaluation/summary.md
