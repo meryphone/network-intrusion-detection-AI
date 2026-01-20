@@ -34,6 +34,24 @@ COLUMN_NAMES = [
 # Categorical columns that need encoding
 CATEGORICAL_COLS = ['protocol_type', 'service', 'flag']
 
+# Columns to drop (irrelevant features based on feature importance analysis):
+# - Zero-variance: land, num_outbound_cmds, is_host_login (100% constant)
+# - Near-zero variance & zero importance: su_attempted, wrong_fragment,
+#   num_failed_logins, num_access_files, rerror_rate, srv_rerror_rate
+COLS_TO_DROP = [
+    # Zero-variance features (100% constant value = 0)
+    'land',              # Always 0
+    'num_outbound_cmds', # Always 0
+    'is_host_login',     # Always 0
+    # Near-zero variance with zero feature importance
+    'su_attempted',      # 100% = 0, importance = 0.0000
+    'wrong_fragment',    # 99.94% = 0, importance = 0.0000  
+    'num_failed_logins', # 99.99% = 0, importance = 0.0000
+    'num_access_files',  # 99.93% = 0, importance = 0.0000
+    'rerror_rate',       # 99.92% = 0, importance = 0.0000
+    'srv_rerror_rate',   # 99.93% = 0, importance = 0.0000
+]
+
 # Paths (relative to project root)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 RAW_TRAIN_PATH = PROJECT_ROOT / 'datasets' / 'raw' / 'kd' / 'kddcup.data' / 'kddcup.data'
@@ -112,6 +130,15 @@ def main():
     # Convert labels
     df_train = convert_labels(df_train)
     
+    # =========================================================================
+    # DROP IRRELEVANT FEATURES
+    # =========================================================================
+    print(f"\n--- Dropping {len(COLS_TO_DROP)} irrelevant features ---")
+    existing_cols = [c for c in COLS_TO_DROP if c in df_train.columns]
+    df_train = df_train.drop(columns=existing_cols)
+    print(f"Dropped: {existing_cols}")
+    print(f"Remaining features: {len(df_train.columns) - 1}")  # -1 for ANOMALY
+    
     df_train_stage2 = df_train.copy()
     df_train_benign = df_train[df_train['ANOMALY'] == 0].copy()
     print(f"Benign samples (Stage 1): {len(df_train_benign)}")
@@ -168,6 +195,10 @@ def main():
     
     # Convert labels
     df_test = convert_labels(df_test)
+    
+    # Drop irrelevant features (same as training)
+    existing_cols = [c for c in COLS_TO_DROP if c in df_test.columns]
+    df_test = df_test.drop(columns=existing_cols)
     
     anomaly_test = df_test['ANOMALY'].copy()
     X_test = df_test.drop(columns=['ANOMALY'])

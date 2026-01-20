@@ -16,11 +16,22 @@ from sklearn.preprocessing import LabelEncoder, RobustScaler
 SAMPLE_FRAC = 0.8
 RANDOM_STATE = 42
 
+# Columns to drop:
+# - ID columns: FLOW_ID, ID (unique identifiers, not predictive)
+# - Metadata: ALERT, ANALYSIS_TIMESTAMP (not network features)
+# - Address/Port: IPV4_SRC_ADDR, IPV4_DST_ADDR, L4_SRC_PORT, L4_DST_PORT 
+#   (too specific, would cause overfitting)
+# - Zero-variance: MIN_IP_PKT_LEN, MAX_IP_PKT_LEN, TOTAL_PKTS_EXP, TOTAL_BYTES_EXP
+#   (constant values, provide no discrimination)
 COLS_TO_DROP = [
-    'FLOW_ID', 'ID', 'ALERT', 'ANOMALY', 'ANALYSIS_TIMESTAMP',
-    'MIN_IP_PKT_LEN', 'MAX_IP_PKT_LEN', 'TOTAL_PKTS_EXP', 
-    'TOTAL_BYTES_EXP', 'TOTAL_FLOWS_EXP', 'IPV4_SRC_ADDR', 
-    'IPV4_DST_ADDR', 'L4_SRC_PORT', 'L4_DST_PORT'
+    # ID columns
+    'FLOW_ID', 'ID',
+    # Metadata columns
+    'ALERT', 'ANALYSIS_TIMESTAMP',
+    # Address/Port columns (would cause overfitting)
+    'IPV4_SRC_ADDR', 'IPV4_DST_ADDR', 'L4_SRC_PORT', 'L4_DST_PORT',
+    # Zero-variance features (constant values in dataset)
+    'MIN_IP_PKT_LEN', 'MAX_IP_PKT_LEN', 'TOTAL_PKTS_EXP', 'TOTAL_BYTES_EXP',
 ]
 
 # Paths (relative to project root)
@@ -85,7 +96,8 @@ def main():
     # =========================================================================
     print("\n--- Processing Stage 1 (Benign only) ---")
     
-    X_train = filter_columns(df_train_benign, COLS_TO_DROP)
+    # Drop irrelevant columns and ANOMALY (label)
+    X_train = filter_columns(df_train_benign, COLS_TO_DROP + ['ANOMALY'])
     X_train, label_encoders = encode_categorical(X_train, fit=True)
     print(f"Features: {X_train.shape[1]}")
     
@@ -103,8 +115,7 @@ def main():
     # =========================================================================
     print("\n--- Processing Stage 2 (Full dataset) ---")
     
-    cols_stage2 = [c for c in COLS_TO_DROP if c != 'ANOMALY']
-    X_s2 = filter_columns(df_train_stage2, cols_stage2)
+    X_s2 = filter_columns(df_train_stage2, COLS_TO_DROP)
     
     anomaly_labels = X_s2['ANOMALY'].copy()
     X_s2_features = X_s2.drop(columns=['ANOMALY'])
@@ -131,7 +142,7 @@ def main():
     print(f"Test samples: {len(df_test)}")
     
     anomaly_test = df_test['ANOMALY'].copy()
-    X_test = filter_columns(df_test, COLS_TO_DROP)
+    X_test = filter_columns(df_test, COLS_TO_DROP + ['ANOMALY'])
     
     X_test, _ = encode_categorical(X_test, encoders=label_encoders, fit=False)
     

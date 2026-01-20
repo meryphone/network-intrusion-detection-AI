@@ -1,2 +1,2 @@
 contamination,n_estimators,random_state,elapsed_sec,accuracy,precision_normal,recall_normal,f1_normal,support_normal,precision_anomaly,recall_anomaly,f1_anomaly,support_anomaly,precision_macro,recall_macro,f1_macro,confusion_tn,confusion_fp,confusion_fn,confusion_tp
-0.45,100,42,9.21,0.6296,0.996,0.55,0.7087,747000,0.3269,0.9899,0.4915,164914,0.6614,0.77,0.6001,410870,336130,1670,163244
+0.45,100,42,9.24,0.6305,0.9957,0.5513,0.7097,747000,0.3274,0.9892,0.492,164914,0.6616,0.7703,0.6008,411846,335154,1776,163138

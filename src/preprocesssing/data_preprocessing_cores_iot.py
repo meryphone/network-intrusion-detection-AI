@@ -23,6 +23,20 @@ N_FEATURES = 19
 # Generate column names (feature_0, feature_1, ..., feature_18, ANOMALY)
 COLUMN_NAMES = [f'feature_{i}' for i in range(N_FEATURES)] + ['ANOMALY']
 
+# Columns to drop (irrelevant features based on feature importance analysis):
+# - Zero-variance: feature_11, feature_12, feature_13 (100% constant = 0)
+# - Near-zero variance with very low importance (<0.001):
+#   feature_0, feature_6, feature_17, feature_18, feature_3
+COLS_TO_DROP = [
+    # Zero-variance features (100% constant value = 0)
+    'feature_11',  # Always 0, importance = 0.0000
+    'feature_12',  # Always 0, importance = 0.0000
+    'feature_13',  # Always 0, importance = 0.0000
+    # Near-zero variance with very low importance
+    'feature_6',   # 99.68% = 0, importance = 0.0000
+    'feature_0',   # Unique per row (like ID), importance = 0.0001
+]
+
 # Paths (relative to project root)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 RAW_DATA_PATH = PROJECT_ROOT / 'datasets' / 'raw' / 'cores-iot' / 'cores_iot.csv'
@@ -72,6 +86,16 @@ def main():
     
     print(f"Training samples: {len(df_train)}")
     print(f"Test samples: {len(df_test)}")
+    
+    # =========================================================================
+    # DROP IRRELEVANT FEATURES
+    # =========================================================================
+    print(f"\n--- Dropping {len(COLS_TO_DROP)} irrelevant features ---")
+    existing_cols = [c for c in COLS_TO_DROP if c in df_train.columns]
+    df_train = df_train.drop(columns=existing_cols)
+    df_test = df_test.drop(columns=existing_cols)
+    print(f"Dropped: {existing_cols}")
+    print(f"Remaining features: {len(df_train.columns) - 1}")  # -1 for ANOMALY
     
     # Separate benign samples for Stage 1
     df_train_benign = df_train[df_train['ANOMALY'] == 0].copy()

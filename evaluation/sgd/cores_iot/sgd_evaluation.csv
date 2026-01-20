@@ -1,2 +1,2 @@
 model_name,loss,random_state,batch_size,warmup_time_sec,test_time_sec,total_time_sec,total_processed,stage2_calls,stage2_call_rate,accuracy,balanced_accuracy,precision_normal,recall_normal,f1_normal,support_normal,precision_anomaly,recall_anomaly,f1_anomaly,support_anomaly,precision_macro,recall_macro,f1_macro,confusion_tn,confusion_fp,confusion_fn,confusion_tp,total_training_time_sec
-sgd_classifier,log_loss,42,25000,3.48,0.93,4.41,201750,150620,0.7466,0.8958,0.8951,0.8902,0.8852,0.8877,93855,0.9006,0.905,0.9028,107895,0.8954,0.8951,0.8953,83079,10776,10246,97649,4.41
+sgd_classifier,log_loss,42,25000,3.98,1.07,5.05,201750,150601,0.7465,0.9045,0.9035,0.9035,0.8897,0.8966,93855,0.9053,0.9174,0.9113,107895,0.9044,0.9035,0.9039,83501,10354,8914,98981,5.05

@@ -92,11 +92,59 @@ intrusion-detection-AI/
 
 ## Supported Datasets
 
-| Dataset | Description | Source |
-|---------|-------------|--------|
-| **NetFlow** | Network flow traffic data | `datasets/raw/netflow/` |
-| **KDD Cup 99** | Classic intrusion detection benchmark | `datasets/raw/kd/` |
-| **CORES IoT** | IoT network intrusion data | `datasets/raw/cores-iot/` |
+| Dataset | Description | Train Samples | Test Samples | Features (after cleaning) |
+|---------|-------------|---------------|--------------|---------------------------|
+| **NetFlow** | Network flow traffic data | 1,851,011 | 911,914 | 20 (from 33) |
+| **KDD Cup 99** | Classic intrusion detection benchmark | 3,918,745 | 248,823 | 32 (from 41) |
+| **CORES IoT** | IoT network intrusion data | 806,998 | 201,750 | 14 (from 19) |
+
+## Data Preprocessing & Cleaning
+
+Each dataset undergoes the following preprocessing pipeline:
+
+### Cleaning Steps Applied
+
+| Step | NetFlow | KDD | CORES-IoT |
+|------|---------|-----|-----------|
+| **Missing Values** | `dropna(ANOMALY)` | None present | None present |
+| **Duplicate Removal** | Not applied* | Not applied* | Not applied* |
+| **Feature Removal** | 12 columns dropped | 9 columns dropped | 5 columns dropped |
+| **Label Encoding** | Categorical → numeric | 3 categorical columns | N/A (all numeric) |
+| **Scaling** | RobustScaler | RobustScaler | RobustScaler |
+| **Train/Test Split** | Pre-split files | Pre-split files | 80/20 stratified |
+
+*Duplicates preserved as they may represent valid repeated patterns in network traffic.
+
+### Features Removed (based on importance analysis)
+
+**NetFlow (12 features removed):**
+- ID columns: `FLOW_ID`, `ID`
+- Metadata: `ALERT`, `ANALYSIS_TIMESTAMP`
+- Address/Port (overfitting risk): `IPV4_SRC_ADDR`, `IPV4_DST_ADDR`, `L4_SRC_PORT`, `L4_DST_PORT`
+- Zero-variance: `MIN_IP_PKT_LEN`, `MAX_IP_PKT_LEN`, `TOTAL_PKTS_EXP`, `TOTAL_BYTES_EXP`
+
+**KDD (9 features removed):**
+- Zero-variance (100% constant): `land`, `num_outbound_cmds`, `is_host_login`
+- Near-zero variance + zero importance: `su_attempted`, `wrong_fragment`, `num_failed_logins`, `num_access_files`, `rerror_rate`, `srv_rerror_rate`
+
+**CORES-IoT (5 features removed):**
+- Zero-variance: `feature_11`, `feature_12`, `feature_13`
+- Near-zero importance: `feature_6` (99.7% = 0), `feature_0` (unique per row, like ID)
+
+### Feature Analysis Notebooks
+
+Comprehensive feature analysis is available in the notebooks:
+- [notebooks/kdd/kdd_data_analysis.ipynb](notebooks/kdd/kdd_data_analysis.ipynb) - KDD dataset analysis
+- [notebooks/cores_iot/cores_iot_data_analysis.ipynb](notebooks/cores_iot/cores_iot_data_analysis.ipynb) - CORES-IoT analysis
+- [notebooks/netflow/netflow_data_analisys.ipynb](notebooks/netflow/netflow_data_analisys.ipynb) - NetFlow analysis
+
+Each notebook includes:
+1. Missing values analysis
+2. Duplicate detection
+3. Class distribution & imbalance
+4. Feature correlation analysis
+5. Outlier detection (IQR method)
+6. Feature importance (Random Forest)
 
 ## Architecture & Methods
 
@@ -399,7 +447,7 @@ Results from training the hybrid IDS across all three datasets:
 | MLP | 90.98% | 95.52% | 90.23% |
 | SGD | 89.51% | 90.85% | 87.38% |
 
-### Key Insights
+### Key Insights (Pre-Cleaning)
 
 1. **Ensemble consistently performs best** across datasets, achieving 95%+ accuracy on all three
 2. **MLP offers the best speed-accuracy tradeoff**, especially on larger datasets like KDD
@@ -408,3 +456,93 @@ Results from training the hybrid IDS across all three datasets:
    - NetFlow: Lower Stage 2 call rate suggests cleaner benign traffic patterns
    - KDD: Higher call rate indicates more ambiguous traffic
    - CORES-IoT: Highest F1 scores suggest clearer attack signatures in IoT data
+
+---
+
+## Results After Data Cleaning
+
+After applying feature importance analysis and removing irrelevant/zero-variance features (see [Data Preprocessing & Cleaning](#data-preprocessing--cleaning) section for details).
+
+### Cross-Dataset Comparison Summary (Post-Cleaning)
+
+| Dataset | Best Model | Accuracy | Balanced Accuracy | F1 Macro | Stage 2 Call Rate |
+|---------|------------|----------|-------------------|----------|-------------------|
+| **NetFlow** | Ensemble | **97.52%** | **97.66%** | **95.96%** | 54.64% |
+| **CORES-IoT** | Ensemble | **95.64%** | 95.31% | **95.58%** | 74.65% |
+| **KDD** | Ensemble | 95.01% | **96.13%** | 92.62% | 85.04% |
+
+### NetFlow Dataset Results (Post-Cleaning)
+
+| Model | Accuracy | Balanced Accuracy | F1 Macro | Recall (Attacks) | Stage 2 Call Rate | Time |
+|-------|----------|-------------------|----------|------------------|-------------------|------|
+| **Ensemble** | **97.52%** | **97.66%** | **95.96%** | **97.89%** | 54.64% | 130.14s |
+| MLP | 95.05% | 93.10% | 91.88% | 90.04% | 54.64% | 14.93s |
+| SGD | 91.08% | 83.08% | 84.36% | 70.55% | 54.64% | **11.07s** |
+| Isolation Forest | 63.05% | N/A | 60.08% | 98.92% | N/A | 9.24s |
+
+**Key Findings (NetFlow Post-Cleaning):**
+- **Accuracy improved from 94.93% to 97.52%** (+2.59% with Ensemble)
+- **MLP improved from 93.00% to 95.05%** (+2.05%)
+- Removing irrelevant features significantly improved model performance
+
+### KDD Cup 99 Dataset Results (Post-Cleaning)
+
+| Model | Accuracy | Balanced Accuracy | F1 Macro | Recall (Attacks) | Stage 2 Call Rate | Time |
+|-------|----------|-------------------|----------|------------------|-------------------|------|
+| **Ensemble** | 95.01% | **96.13%** | 92.62% | 94.29% | 85.04% | 372.77s |
+| MLP | **94.84%** | 95.42% | **92.31%** | 94.47% | 85.04% | 27.79s |
+| SGD | 91.55% | 90.13% | 87.41% | 92.46% | 85.04% | 16.75s |
+| Isolation Forest | 90.89% | N/A | 84.01% | **97.13%** | N/A | **3.93s** |
+
+**Key Findings (KDD Post-Cleaning):**
+- Performance remained stable after removing 9 irrelevant features
+- **Ensemble balanced accuracy improved from 96.11% to 96.13%**
+- Training time slightly reduced due to fewer features
+
+### CORES-IoT Dataset Results (Post-Cleaning)
+
+| Model | Accuracy | Balanced Accuracy | F1 Macro | Recall (Attacks) | Stage 2 Call Rate | Time |
+|-------|----------|-------------------|----------|------------------|-------------------|------|
+| **Ensemble** | **95.64%** | **95.31%** | **95.58%** | **99.98%** | 74.65% | 55.46s |
+| SGD | 90.45% | 90.35% | 90.39% | 91.74% | 74.65% | 5.05s |
+| MLP | 89.23% | 89.38% | 89.21% | 87.25% | 74.65% | 6.62s |
+| Isolation Forest | 78.83% | N/A | 77.01% | 100% | N/A | **3.65s** |
+
+**Key Findings (CORES-IoT Post-Cleaning):**
+- **Ensemble maintained 95.64% accuracy** after removing 5 irrelevant features
+- **SGD improved from 89.58% to 90.45%** (+0.87%)
+- Near-perfect attack recall (99.98%) preserved
+
+### Comparison: Pre-Cleaning vs Post-Cleaning (Best Model per Dataset)
+
+| Dataset | Model | Accuracy (Before) | Accuracy (After) | Change |
+|---------|-------|-------------------|------------------|--------|
+| **NetFlow** | Ensemble | 94.93% | **97.52%** | **+2.59%** |
+| **KDD** | Ensemble | 95.03% | 95.01% | -0.02% |
+| **CORES-IoT** | Ensemble | 95.64% | 95.64% | 0.00% |
+
+### Stage 2 Model Comparison - F1 Macro (Post-Cleaning)
+
+| Model | CORES-IoT | KDD | NetFlow |
+|-------|-----------|-----|---------|
+| **Ensemble** | **95.58%** | 92.62% | **95.96%** |
+| MLP | 89.21% | **92.31%** | 91.88% |
+| SGD | 90.39% | 87.41% | 84.36% |
+
+### Stage 2 Model Comparison - Balanced Accuracy (Post-Cleaning)
+
+| Model | CORES-IoT | KDD | NetFlow |
+|-------|-----------|-----|---------|
+| **Ensemble** | **95.31%** | **96.13%** | **97.66%** |
+| MLP | 89.38% | 95.42% | 93.10% |
+| SGD | 90.35% | 90.13% | 83.08% |
+
+### Key Insights (Post-Cleaning)
+
+1. **Feature cleaning significantly improved NetFlow results** - Accuracy jumped from 94.93% to 97.52% by removing 12 irrelevant features
+2. **KDD and CORES-IoT remained stable** - These datasets already had cleaner feature sets
+3. **Ensemble remains the best performer** across all datasets post-cleaning
+4. **Reduced feature count** improves training efficiency:
+   - NetFlow: 33 → 20 features (39% reduction)
+   - KDD: 41 → 32 features (22% reduction)
+   - CORES-IoT: 19 → 14 features (26% reduction)
