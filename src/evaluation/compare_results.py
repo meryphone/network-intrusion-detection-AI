@@ -357,13 +357,13 @@ def main():
     # Save outputs
     if args.format in ['csv', 'both']:
         combined.to_csv(output_path, index=False)
-        print(f"\n✓ Saved full summary to {output_path}")
+        print(f"\nSaved full summary to {output_path}")
         
         # Best results per model-dataset
         best_results = get_best_results(combined, 'both')
         best_path = output_path.parent / 'summary_best.csv'
         best_results.to_csv(best_path, index=False)
-        print(f"✓ Saved best results to {best_path}")
+        print(f"Saved best results to {best_path}")
     
     if args.format in ['markdown', 'both']:
         md_path = output_path.with_suffix('.md')
@@ -373,7 +373,7 @@ def main():
             f.write("## Best Results per Dataset and Model\n\n")
             f.write(generate_summary_table(combined))
             f.write("\n")
-        print(f"✓ Saved markdown summary to {md_path}")
+        print(f"Saved markdown summary to {md_path}")
     
     print("\n" + "=" * 70)
     print("COMPARISON COMPLETE")

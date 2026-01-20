@@ -61,13 +61,13 @@ def run_command(cmd: list, description: str) -> bool:
             check=True,
             text=True
         )
-        print(f"\n✓ {description} completed successfully")
+        print(f"\n[OK] {description} completed successfully")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"\n✗ {description} failed with exit code {e.returncode}")
+        print(f"\n[ERROR] {description} failed with exit code {e.returncode}")
         return False
     except Exception as e:
-        print(f"\n✗ {description} failed: {e}")
+        print(f"\n[ERROR] {description} failed: {e}")
         return False
 
 
@@ -226,13 +226,13 @@ def main():
     if not args.train_only:
         print("\nPreprocessing Results:")
         for dataset, success in results['preprocess'].items():
-            status = "✓ Success" if success else "✗ Failed"
+            status = "OK" if success else "FAILED"
             print(f"  {dataset}: {status}")
     
     if not args.preprocess_only:
         print("\nTraining Results:")
         for dataset, success in results['train'].items():
-            status = "✓ Success" if success else "✗ Failed"
+            status = "OK" if success else "FAILED"
             print(f"  {dataset}: {status}")
     
     # =========================================================================
@@ -247,7 +247,7 @@ def main():
         results['compare'] = compare_success
         
         print("\nComparison Results:")
-        status = "✓ Success" if compare_success else "✗ Failed"
+        status = "OK" if compare_success else "FAILED"
         print(f"  Cross-dataset comparison: {status}")
     
     print("\nOutput locations:")

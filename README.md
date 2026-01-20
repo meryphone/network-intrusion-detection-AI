@@ -25,7 +25,7 @@ intrusion-detection-AI/
 │       │   └── test_processed.csv         # Test set
 │       ├── kdd/                      # KDD Cup 99 processed data
 │       │   └── ...
-│       └── cores_iot/                # CORES IoT processed data
+│       └── cores_iot/                # IoT-23 processed data
 │           └── ...
 │
 ├── models/                           # Trained model files (.pkl) by dataset
@@ -67,7 +67,7 @@ intrusion-detection-AI/
 │   │   ├── ensemble_results.ipynb           # Dynamic Ensemble results
 │   │   └── comparasing_results.ipynb        # Model comparison
 │   ├── kdd/                          # KDD dataset analysis
-│   └── cores_iot/                    # CORES IoT dataset analysis
+│   └── cores_iot/                    # IoT-23 dataset analysis
 │
 ├── src/                              # Source code
 │   ├── datasets/
@@ -96,7 +96,7 @@ intrusion-detection-AI/
 |---------|-------------|---------------|--------------|---------------------------|
 | **NetFlow** | Network flow traffic data | 1,851,011 | 911,914 | 20 (from 33) |
 | **KDD Cup 99** | Classic intrusion detection benchmark | 3,918,745 | 248,823 | 32 (from 41) |
-| **CORES IoT** | IoT network intrusion data | 806,998 | 201,750 | 14 (from 19) |
+| **IoT-23** | IoT network intrusion data | 806,998 | 201,750 | 14 (from 19) |
 
 ## Data Preprocessing & Cleaning
 
@@ -460,8 +460,6 @@ Results from training the hybrid IDS across all three datasets:
 ---
 
 ## Results After Data Cleaning
-
-After applying feature importance analysis and removing irrelevant/zero-variance features (see [Data Preprocessing & Cleaning](#data-preprocessing--cleaning) section for details).
 
 ### Cross-Dataset Comparison Summary (Post-Cleaning)
 
