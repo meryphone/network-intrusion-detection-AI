@@ -35,7 +35,7 @@ WARM_START = True
 MAX_ITER = 1
 
 # Pipeline config
-BATCH_SIZE_OPTIONS = [20000] # After experiments we leave the best options from this batch sizes [10000, 15000, 20000, 25000, 30000]
+BATCH_SIZE_OPTIONS = [10000, 15000, 20000, 25000, 30000] # After experiments we leave the best options from this batch sizes [10000, 15000, 20000, 25000, 30000]
 CLASSES = np.array([0, 1])
 
 # =============================================================================
