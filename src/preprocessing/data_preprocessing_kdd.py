@@ -3,7 +3,7 @@ Data Preprocessing Script for KDD Cup 1999 Dataset.
 Prepares training and test data for the intrusion detection system.
 
 Run from project root:
-    python src/preprocesssing/data_preprocessing_kdd.py
+    python src/preprocessing/data_preprocessing_kdd.py
 """
 
 from pathlib import Path

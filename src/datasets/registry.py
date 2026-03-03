@@ -33,7 +33,7 @@ DATASETS: Dict[str, Dict[str, Any]] = {
             'train_benign': 'train_processed_benign.csv',
             'test': 'test_processed.csv',
         },
-        'preprocess_script': 'src/preprocesssing/data_preprocessing_netflow.py',
+        'preprocess_script': 'src/preprocessing/data_preprocessing_netflow.py',
         'label': {
             'column': 'ANOMALY',
             'positive_values': [1],
@@ -56,7 +56,7 @@ DATASETS: Dict[str, Dict[str, Any]] = {
             'train_benign': 'train_processed_benign.csv',
             'test': 'test_processed.csv',
         },
-        'preprocess_script': 'src/preprocesssing/data_preprocessing_kdd.py',
+        'preprocess_script': 'src/preprocessing/data_preprocessing_kdd.py',
         'label': {
             'column': 'ANOMALY',
             'source': 'label',
@@ -79,7 +79,7 @@ DATASETS: Dict[str, Dict[str, Any]] = {
             'train_benign': 'train_processed_benign.csv',
             'test': 'test_processed.csv',
         },
-        'preprocess_script': 'src/preprocesssing/data_preprocessing_cores_iot.py',
+        'preprocess_script': 'src/preprocessing/data_preprocessing_cores_iot.py',
         'label': {
             'column': 'ANOMALY',
             'positive_values': [1],

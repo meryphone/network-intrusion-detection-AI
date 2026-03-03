@@ -3,7 +3,7 @@ Data Preprocessing Script for CORES-IoT Dataset.
 Prepares training and test data for the intrusion detection system.
 
 Run from project root:
-    python src/preprocesssing/data_preprocessing_cores_iot.py
+    python src/preprocessing/data_preprocessing_cores_iot.py
 """
 
 from pathlib import Path

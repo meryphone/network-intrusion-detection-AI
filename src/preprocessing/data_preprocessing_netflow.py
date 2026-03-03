@@ -3,7 +3,7 @@ Data Preprocessing Script for NetFlow Dataset.
 Prepares training and test data for the intrusion detection system.
 
 Run from project root:
-    python src/preprocesssing/data_preprocessing_netflow.py
+    python src/preprocessing/data_preprocessing_netflow.py
 """
 
 from pathlib import Path

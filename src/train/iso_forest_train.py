@@ -2,7 +2,7 @@
 Trains Isolation Forest models with multiple contamination values for Stage 1.
 
 Usage:
-    python isoForestTrain.py --train path/to/train_benign.csv --test path/to/test.csv
+    python iso_forest_train.py --train path/to/train_benign.csv --test path/to/test.csv
 """
 
 import time
